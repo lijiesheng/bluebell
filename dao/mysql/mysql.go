@@ -9,7 +9,7 @@ import (
 
 var db *sqlx.DB
 
-func initMysql() (err error) {
+func InitMysql() (err error) {
 	dsn := "root:ljs024816@tcp(127.0.0.1:3306)/bluebell?charset=utf8mb4&parseTime=True"
 	db, err = sqlx.Connect("mysql", dsn) // 这个函数自带了 ping
 	if err != nil {

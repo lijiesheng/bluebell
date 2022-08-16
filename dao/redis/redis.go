@@ -6,7 +6,7 @@ import "github.com/go-redis/redis"
 var rdb *redis.Client
 
 // 初始化连接
-func initRedis() (err error) {
+func InitRedis() (err error) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set

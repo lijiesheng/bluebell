@@ -6,7 +6,7 @@ import (
 )
 
 func TestRedis(t *testing.T) {
-	err := initRedis()
+	err := InitRedis()
 	if err != nil {
 		fmt.Println("redis 连接错误", err)
 	} else {
