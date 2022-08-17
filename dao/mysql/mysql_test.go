@@ -20,7 +20,6 @@ func init() {
 	fmt.Println("数据库已经连接上了")
 }
 
-
 // 使用 sqlx 结构体的字段名要大写
 // 测试查询单条
 func TestQueryRowDemo(t *testing.T) {
@@ -48,24 +47,33 @@ func TestQueryMultiRowDemo(t *testing.T) {
 
 // 插入
 func TestInsertDemo(t *testing.T) {
-	sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) " +
-		" values(?, ?, ?, ?, ? ,?, ?)"
-	now := time.Now()
-	ret, err := db.Exec(sqlstr, 14, "小李子", "", "ljs_hsm@163.com", 0, now, now)
-	if err != nil {
-		fmt.Printf("insert failed, err : %v\n", err)
-		return
-	}
-	lastInsertId, err := ret.LastInsertId() // 新插入数据的 id
-	if err != nil {
-		fmt.Printf("get lastInsertId failed, err : %v\n", err)
-		return
-	}
-	fmt.Println("新插入的数据 id : ", lastInsertId)
+	//sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) " +
+	//	" values(?, ?, ?, ?, ? ,?, ?)"
+	//now := time.Now()
+	//ret, err := db.Exec(sqlstr, 14, "小李子", "", "ljs_hsm@163.com", 0, now, now)
+	//if err != nil {
+	//	fmt.Printf("insert failed, err : %v\n", err)
+	//	return
+	//}
+	//lastInsertId, err := ret.LastInsertId() // 新插入数据的 id
+	//if err != nil {
+	//	fmt.Printf("get lastInsertId failed, err : %v\n", err)
+	//	return
+	//}
+	//fmt.Println("新插入的数据 id : ", lastInsertId)
+
+	//// 测试一次性插入两条数据
+	//sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) " +
+	//	" values(?, ?, ?, ?, ? ,?, ?), (?, ?, ?, ?, ? ,?, ?)"
+	//now := time.Now()
+	//params := make([]interface{}, 0)
+	//params = append(params, 30, "小李子_1", "", "ljs_hsm@1631.com", 0, now, now, 31, "小李子_2", "", "ljs_hsm@1635.com", 0, now, now)
+	//fmt.Println(params...)
+	//db.Exec(sqlstr, params...)
 }
 
 // 测试更新
-func TestUpdateDemo(t *testing.T){
+func TestUpdateDemo(t *testing.T) {
 	sqlstr := "update user set username = ? where id = ? "
 	result, err := db.Exec(sqlstr, "小狗狗", 5)
 	if err != nil {
@@ -98,7 +106,7 @@ func TestDeleteDemo(t *testing.T) {
 
 // 测试 NamedQuery
 // 可以传入结构体 和 map
-func TestNamedQuery (t *testing.T) {
+func TestNamedQuery(t *testing.T) {
 	sqlStr := "select * from user where username = :username"
 	// 使用 map 做命名查询
 	mapstr := map[string]interface{}{
@@ -170,11 +178,11 @@ func TestNamedExec(t *testing.T) {
 
 	// 使用 struct
 	u := models.User{
-		User_id:15,
-		Username:"小黄小李",
-		Password:"",
-		Email: "15827509197@163.com",
-		Gender: 0,
+		User_id:     15,
+		Username:    "小黄小李",
+		Password:    "",
+		Email:       "15827509197@163.com",
+		Gender:      0,
 		Create_time: time.Now(),
 		Update_time: time.Now(),
 	}
@@ -201,8 +209,8 @@ func TestTransactionDemo(t *testing.T) {
 		return
 	}
 	defer func() {
-		if p:= recover(); p != nil {
-			tx.Rollback()   // 回滚
+		if p := recover(); p != nil {
+			tx.Rollback() // 回滚
 			panic(p)
 		} else if err != nil {
 			fmt.Println("rollback")
@@ -226,7 +234,7 @@ func TestTransactionDemo(t *testing.T) {
 		return
 	}
 
-	sqlStr2 := "update user set username = ? where i = ?"  // 故意把 sql 语句写错，看看是否可以回滚
+	sqlStr2 := "update user set username = ? where i = ?" // 故意把 sql 语句写错，看看是否可以回滚
 	result, err = tx.Exec(sqlStr2, "我是事务", 1)
 	if err != nil {
 		return
@@ -240,66 +248,76 @@ func TestTransactionDemo(t *testing.T) {
 	}
 }
 
-
-
 // 测试 sqlx.In
-
-
 
 // 测试 批量插入 方法一：
 // 自行构造批量插入的语句  这个方法费内存
 func TestBatchInsertUsersMethod_1(t *testing.T) {
 	// 比如我要插入 3 个 user
-	userStrings := make([]models.User,1)
+	userStrings := make([]models.User, 1)
 	userStrings[0] = models.User{
-		User_id : 20,
-		Username : "名称1",
-		Password: "",
-		Email: "2398027035@qq.com",
-		Gender: 0,
+		User_id:     20,
+		Username:    "名称1",
+		Password:    "",
+		Email:       "2398027035@qq.com",
+		Gender:      0,
 		Create_time: time.Now(),
 		Update_time: time.Now(),
 	}
 	userStrings = append(userStrings, models.User{
-		User_id : 30,
-		Username : "名称2",
-		Password: "",
-		Email: "2398027035@qq.com",
-		Gender: 0,
+		User_id:     30,
+		Username:    "名称2",
+		Password:    "",
+		Email:       "2398027035@qq.com",
+		Gender:      0,
 		Create_time: time.Now(),
 		Update_time: time.Now(),
-	},)
+	})
 	userStrings = append(userStrings, models.User{
-		User_id : 40,
-		Username : "名称3",
-		Password: "",
-		Email: "2398027035@qq.com",
-		Gender: 0,
+		User_id:     40,
+		Username:    "名称3",
+		Password:    "",
+		Email:       "2398027035@qq.com",
+		Gender:      0,
 		Create_time: time.Now(),
 		Update_time: time.Now(),
 	})
 
+	//valueArgs := make([]interface{}, 0, 3*7) // 3 个 user 对象，每个 user 对象有 7 个元素, id 不用拼接在 sql 中
+	//// 准备数据 这里可以参考
 
-	valueArgs := make([]interface{}, 0, 3 * 7)  // 3 个 user 对象，每个 user 对象有 7 个元素, id 不用拼接在 sql 中
-	// 准备数据
-	for _, v := range userStrings {
-		valueArgs = append(valueArgs, "(?, ?, ?, ? , ?, ?, ?)")
-		valueArgs = append(valueArgs, v.User_id, v.Username, v.Password, v.Email, v.Gender, v.Create_time, v.Update_time)
+	//for _, v := range userStrings {
+	//	valueArgs = append(valueArgs, v.User_id, v.Username, v.Password, v.Email, v.Gender, v.Create_time, v.Update_time)
+	//}
+	sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) values "
+	for i := 0; i < 3-1; i++ {
+		sqlstr += "(?, ?, ?, ?, ? ,?, ?), "
 	}
-	fmt.Printf("%v\n", valueArgs)
+	sqlstr += "(?, ?, ?, ?, ? ,?, ?)"
+	fmt.Println(sqlstr)
+	params := make([]interface{}, 0, 3*7)
+	for _, v := range userStrings {
+		params = append(params, v.User_id, v.Username, v.Password, v.Email, v.Gender, v.Create_time, v.Update_time)
+	}
+	db.Exec(sqlstr, params...)
+
+	//fmt.Printf("%v\n", valueArgs)
 	//stms := fmt.Sprintf("insert into user(user_id, username, password, email, gender, create_time, update_time) VALUES ",
 	//	strings.Join(valueArgs, ","))
 	//fmt.Println("stms == ",stms)
-	//fmt.Sprintf("insert into user(user_id, username, password, email, gender, create_time, update_time) %s",
+	//fmt.Sprintf("insert into user(user_id, username, password, email, gender, create_time, update_time) values %s",
 	//	strings.Join(valueArgs, ","))
+}
+
+func TestStringJoin(t *testing.T) {
+	a := make([]interface{}, 0, 2)
+	//a = append(a, "(?, ?, ?, ?)")
+	//fmt.Println(a)
+	a = append(a, 1, 2, 3, 4)
+	a = append(a, 5, 6, 7, 8)
+	fmt.Println(a)
 }
 
 // 测试 批量插入 方法二：
 
 // 测试批量插入 方法三：
-
-
-
-
-
-
