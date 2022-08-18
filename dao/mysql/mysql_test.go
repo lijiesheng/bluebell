@@ -3,6 +3,7 @@ package mysql
 import (
 	"bluebell/models"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"testing"
 	"time"
 )
@@ -13,7 +14,7 @@ func init() {
 		fmt.Println("mysql 数据连接不上")
 		return
 	}
-	err = db.Ping()
+	err = DB.Ping()
 	if err != nil {
 		fmt.Println("mysql ping 有问题")
 	}
@@ -25,7 +26,7 @@ func init() {
 func TestQueryRowDemo(t *testing.T) {
 	sql := "select id, user_id, username, password, email, gender, create_time, update_time from user where id = ?"
 	var u models.User
-	err := db.Get(&u, sql, 1)
+	err := DB.Get(&u, sql, 1)
 	if err != nil {
 		fmt.Printf("get failed, err:%v\n", err)
 		return
@@ -37,7 +38,7 @@ func TestQueryRowDemo(t *testing.T) {
 func TestQueryMultiRowDemo(t *testing.T) {
 	sql := "select id, user_id, username, password, email, gender, create_time, update_time  from user where id > ?"
 	var u_list []models.User
-	err := db.Select(&u_list, sql, 0)
+	err := DB.Select(&u_list, sql, 0)
 	if err != nil {
 		fmt.Printf("query failed, err:%v\n", err)
 		return
@@ -47,20 +48,21 @@ func TestQueryMultiRowDemo(t *testing.T) {
 
 // 插入
 func TestInsertDemo(t *testing.T) {
-	//sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) " +
-	//	" values(?, ?, ?, ?, ? ,?, ?)"
-	//now := time.Now()
-	//ret, err := db.Exec(sqlstr, 14, "小李子", "", "ljs_hsm@163.com", 0, now, now)
-	//if err != nil {
-	//	fmt.Printf("insert failed, err : %v\n", err)
-	//	return
-	//}
-	//lastInsertId, err := ret.LastInsertId() // 新插入数据的 id
-	//if err != nil {
-	//	fmt.Printf("get lastInsertId failed, err : %v\n", err)
-	//	return
-	//}
-	//fmt.Println("新插入的数据 id : ", lastInsertId)
+	// 测试一次性插入一条数据
+	sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) " +
+		" values(?, ?, ?, ?, ? ,?, ?)"
+	now := time.Now()
+	ret, err := DB.Exec(sqlstr, 14, "小李子", "", "ljs_hsm@163.com", 0, now, now)
+	if err != nil {
+		fmt.Printf("insert failed, err : %v\n", err)
+		return
+	}
+	lastInsertId, err := ret.LastInsertId() // 新插入数据的 id
+	if err != nil {
+		fmt.Printf("get lastInsertId failed, err : %v\n", err)
+		return
+	}
+	fmt.Println("新插入的数据 id : ", lastInsertId)
 
 	//// 测试一次性插入两条数据
 	//sqlstr := "insert into user(user_id, username, password, email, gender, create_time, update_time) " +
@@ -69,13 +71,13 @@ func TestInsertDemo(t *testing.T) {
 	//params := make([]interface{}, 0)
 	//params = append(params, 30, "小李子_1", "", "ljs_hsm@1631.com", 0, now, now, 31, "小李子_2", "", "ljs_hsm@1635.com", 0, now, now)
 	//fmt.Println(params...)
-	//db.Exec(sqlstr, params...)
+	//DB.Exec(sqlstr, params...)
 }
 
 // 测试更新
 func TestUpdateDemo(t *testing.T) {
 	sqlstr := "update user set username = ? where id = ? "
-	result, err := db.Exec(sqlstr, "小狗狗", 5)
+	result, err := DB.Exec(sqlstr, "小狗狗", 5)
 	if err != nil {
 		fmt.Printf("update failed, err : %v\n", err)
 		return
@@ -91,7 +93,7 @@ func TestUpdateDemo(t *testing.T) {
 // 测试删除
 func TestDeleteDemo(t *testing.T) {
 	sqlstr := "delete from user where id = ?"
-	result, err := db.Exec(sqlstr, 5)
+	result, err := DB.Exec(sqlstr, 5)
 	if err != nil {
 		fmt.Printf("delete failed, err : %v\n", err)
 		return
@@ -112,9 +114,9 @@ func TestNamedQuery(t *testing.T) {
 	mapstr := map[string]interface{}{
 		"username": "李结胜",
 	}
-	rows, err := db.NamedQuery(sqlStr, mapstr)
+	rows, err := DB.NamedQuery(sqlStr, mapstr)
 	if err != nil {
-		fmt.Printf("db.NamedQuery failed, err:%v\n", err)
+		fmt.Printf("DB.NamedQuery failed, err:%v\n", err)
 		return
 	}
 	defer rows.Close()
@@ -132,9 +134,9 @@ func TestNamedQuery(t *testing.T) {
 	u := models.User{
 		Username: "李结胜",
 	}
-	rows, err = db.NamedQuery(sqlStr, u)
+	rows, err = DB.NamedQuery(sqlStr, u)
 	if err != nil {
-		fmt.Printf("db.NameQuery failed, err : %v\n", err)
+		fmt.Printf("DB.NameQuery failed, err : %v\n", err)
 		return
 	}
 	defer rows.Close()
@@ -163,9 +165,9 @@ func TestNamedExec(t *testing.T) {
 	//	"create_time": time.Now(),
 	//	"update_time": time.Now(),
 	//}
-	//result, err := db.NamedExec(sqlstr, m)
+	//result, err := DB.NamedExec(sqlstr, m)
 	//if err != nil {
-	//	fmt.Printf("db.NamedExec failed, err : %v\n", err)
+	//	fmt.Printf("DB.NamedExec failed, err : %v\n", err)
 	//	return
 	//}
 	//lastInsertId, err := result.LastInsertId()
@@ -186,9 +188,9 @@ func TestNamedExec(t *testing.T) {
 		Create_time: time.Now(),
 		Update_time: time.Now(),
 	}
-	result, err := db.NamedExec(sqlstr, u)
+	result, err := DB.NamedExec(sqlstr, u)
 	if err != nil {
-		fmt.Printf("db.NamedExec failed, err : %v\n", err)
+		fmt.Printf("DB.NamedExec failed, err : %v\n", err)
 		return
 	}
 	lastInsertId, err := result.LastInsertId()
@@ -200,10 +202,10 @@ func TestNamedExec(t *testing.T) {
 	// 使用 struct 结束
 }
 
-// 测试 事务  db.Beginx(), tx.Exec() tx.Commit() tx.Rollback()
+// 测试 事务  DB.Beginx(), tx.Exec() tx.Commit() tx.Rollback()
 func TestTransactionDemo(t *testing.T) {
 	var err error
-	tx, err := db.Beginx()
+	tx, err := DB.Beginx()
 	if err != nil {
 		fmt.Printf("begin trans failed, err : %v\n", err)
 		return
@@ -250,8 +252,8 @@ func TestTransactionDemo(t *testing.T) {
 
 // 测试 sqlx.In
 
-// 测试 批量插入 方法一：
-// 自行构造批量插入的语句  这个方法费内存
+// 测试 批量插入 方法一： 自行构造批量插入的语句
+//   这个方法费内存
 func TestBatchInsertUsersMethod_1(t *testing.T) {
 	// 比如我要插入 3 个 user
 	userStrings := make([]models.User, 1)
@@ -299,7 +301,7 @@ func TestBatchInsertUsersMethod_1(t *testing.T) {
 	for _, v := range userStrings {
 		params = append(params, v.User_id, v.Username, v.Password, v.Email, v.Gender, v.Create_time, v.Update_time)
 	}
-	db.Exec(sqlstr, params...)
+	DB.Exec(sqlstr, params...)
 
 	//fmt.Printf("%v\n", valueArgs)
 	//stms := fmt.Sprintf("insert into user(user_id, username, password, email, gender, create_time, update_time) VALUES ",
@@ -309,15 +311,4 @@ func TestBatchInsertUsersMethod_1(t *testing.T) {
 	//	strings.Join(valueArgs, ","))
 }
 
-func TestStringJoin(t *testing.T) {
-	a := make([]interface{}, 0, 2)
-	//a = append(a, "(?, ?, ?, ?)")
-	//fmt.Println(a)
-	a = append(a, 1, 2, 3, 4)
-	a = append(a, 5, 6, 7, 8)
-	fmt.Println(a)
-}
 
-// 测试 批量插入 方法二：
-
-// 测试批量插入 方法三：
