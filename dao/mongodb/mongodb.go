@@ -25,6 +25,8 @@ func InitMongoDB()  {
 		log.Fatal(err)
 	}
 	fmt.Println("Connected to MongoDB!")
+
+
 }
 
 

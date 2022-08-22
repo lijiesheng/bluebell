@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"strings"
 	"testing"
 )
 
@@ -37,16 +40,64 @@ func Test_ExampleClient(t *testing.T) {
 			return
 		}
 	}()
+	var  stu1 Student
 	collection := client.Database("erp").Collection("Student")
+	// bson.D{{"$set", bson.D{{"email", "newemail@example.com"}}}}
+	collection.FindOneAndUpdate(context.TODO(), bson.M{"_id": objectIDHex("62ff1b1d840c01f2575560c8")}, bson.M{"$set" : bson.M{"age" : 66}}).Decode(&stu1)
 
-	findOptions := options.Find()
-	findOptions.SetLimit(100)
-	findOptions.SetSkip(20)
-	findOptions.SetProjection(bson.M{"name" : 0})
-	findOptions.SetSort(bson.D{{Key : "name" , Value: 1}})
-	filter := bson.M{"name" : bson.M{"$in" : []string{"world", "world1"}}}
-	distinct, err := collection.Distinct(context.TODO(), "name", filter)
-	fmt.Println(len(distinct))
+
+	//groupStage := bson.D{
+	//	{"$group", bson.D{
+	//		{"_id", "$name"},    // 根据 name 进行分组
+	//		{"numTimes", bson.D{   // 每个 name 出现的次数，赋值给 numTimes
+	//			{"$sum", 1},
+	//		}},
+	//	}},
+	//	{"$match" : bson.D{
+	//		{"numTimes" : bson.D{
+	//			{"$gt" : 2},
+	//		}},
+	//	}},
+	//}
+
+	pipelint := mongo.Pipeline{
+		{{Key : "$group", Value : bson.D{ {Key : "_id", Value : "$name"}, {Key : "numTimes", Value: bson.D{{Key: "$sum", Value : 1}}} }}},
+		{{Key : "$match", Value : bson.D{{Key : "numTimes", Value: bson.D{{Key : "$gt", Value : 2}}}}}},
+	}
+
+	opt := options.Aggregate()
+	cursor ,err := collection.Aggregate(context.TODO(),pipelint,opt)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var results []bson.M
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+	for _, result := range results {
+		fmt.Printf(
+			"name %v appears %v times\n",
+			result["_id"],
+			result["numTimes"])
+	}
+
+}
+
+func MongoPipeline(str string) mongo.Pipeline {
+	var pipeline = []bson.D{}
+	str = strings.TrimSpace(str)
+	if strings.Index(str, "[") != 0 {
+		var doc bson.D
+		bson.UnmarshalExtJSON([]byte(str), false, &doc)
+		pipeline = append(pipeline, doc)
+	} else {
+		bson.UnmarshalExtJSON([]byte(str), false, &pipeline)
+	}
+	return pipeline
 }
 
 
+func objectIDHex(s string) primitive.ObjectID {
+	oid, _ := primitive.ObjectIDFromHex(s)
+	return oid
+}
