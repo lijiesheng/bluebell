@@ -74,3 +74,6 @@ CREATE TABLE `post` (
                         KEY `idx_author_id` (`author_id`),
                         KEY `idx_community_id` (`community_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+

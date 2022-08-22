@@ -15,6 +15,7 @@ type User struct {
 	Password string
 	Email string
 	Gender int8
+	Token string
 	Create_time time.Time
 	Update_time time.Time
 }
