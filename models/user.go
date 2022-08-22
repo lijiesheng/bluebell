@@ -16,6 +16,9 @@ type User struct {
 	Update_time time.Time
 }
 
+
+
+
 //// 实现批量插入方式一的前提
 //func (u User) Value() (driver.Value, error) {
 //	return []interface{}{u.User_id, u.Username, u.Password, u.Email, u.Gender, u.Create_time, u.Update_time}, nil

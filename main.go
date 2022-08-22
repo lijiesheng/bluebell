@@ -42,4 +42,6 @@ func main() {
 	}
 	id := snowflake.GenID()
 	fmt.Println(id)
+
+
 }
