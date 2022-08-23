@@ -3,10 +3,12 @@ package router
 import (
 	"bluebell/controller"
 	"bluebell/logger"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(mode string) *gin.Engine {
 	r := gin.New()
 
 	// 接收gin框架默认的日志
@@ -15,4 +17,11 @@ func SetupRouter() *gin.Engine {
 
 	// 注册业务路由
 	r.POST("/signup", controller.SignUpHandler)
+
+
+	r.NoRoute(func(context *gin.Context) {   // 没有找到路由
+		fmt.Println("没有找到路由")
+		context.HTML(http.StatusNotFound, "views/404.html", nil)
+	})
+	return r
 }

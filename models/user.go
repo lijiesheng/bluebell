@@ -1,19 +1,18 @@
 package models
 
-import (
-	"time"
-)
-
 type User struct {
-	Id int64
-	User_id int64
-	Username string
-	Password string
-	Email string
-	Gender int8
-	Token string
-	Create_time time.Time
-	Update_time time.Time
+	//User_id int64
+	//Username string
+	//Password string
+	//Email string
+	//Gender int8
+	//Token string
+	//Create_time time.Time
+	//Update_time time.Time
+	UserID   int64  `db:"user_id"`
+	Username string `db:"username"`
+	Password string `db:"password"`
+	Token    string
 }
 
 

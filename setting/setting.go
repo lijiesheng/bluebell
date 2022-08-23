@@ -92,10 +92,10 @@ func Init(filePath string) (err error) {
 			fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
 		}
 	})
-	fmt.Printf("%+v\n", Conf)
-	fmt.Printf("%+v\n", Conf.Auth)
-	fmt.Printf("%+v\n", Conf.Log)
-	fmt.Printf("%+v\n", Conf.Mysql)
-	fmt.Printf("%+v\n", Conf.Redis)
+	//fmt.Printf("%+v\n", Conf)
+	//fmt.Printf("%+v\n", Conf.Auth)
+	//fmt.Printf("%+v\n", Conf.Log)
+	//fmt.Printf("%+v\n", Conf.Mysql)
+	//fmt.Printf("%+v\n", Conf.Redis)
 	return
 }

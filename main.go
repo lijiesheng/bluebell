@@ -5,6 +5,7 @@ import (
 	"bluebell/dao/redis"
 	"bluebell/logger"
 	"bluebell/pkg/snowflake"
+	"bluebell/router"
 	"bluebell/setting"
 	"fmt"
 )
@@ -44,4 +45,11 @@ func main() {
 	fmt.Println(id)
 
 
+	// 注册路由
+	r := router.SetupRouter(setting.Conf.Mode)
+	err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port))
+	if err != nil {
+		fmt.Printf("run server failed, err:%d\n", err)
+		return
+	}
 }
