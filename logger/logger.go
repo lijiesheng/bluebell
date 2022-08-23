@@ -3,6 +3,7 @@ package logger
 // 本文参考的是 Uber-go zap 日志库   https://www.liwenzhou.com/posts/Go/zap/
 import (
 	"bluebell/setting"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
@@ -28,7 +29,8 @@ func Init(cfg *setting.Log, mode string) (err error) {
 		return
 	}
 	var core zapcore.Core
-	if mode == "dev" {
+	fmt.Println("mode==>", mode)
+	if mode == "dev" || mode == "debug" {
 		// 进入开发模式，日志输出到终端
 		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
 		core = zapcore.NewTee(
