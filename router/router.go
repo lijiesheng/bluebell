@@ -18,6 +18,9 @@ func SetupRouter(mode string) *gin.Engine {
 	// 注册业务路由
 	r.POST("/signup", controller.SignUpHandler)
 
+	// 登录
+	r.GET("/login", controller.LoginHandler)
+
 
 	r.NoRoute(func(context *gin.Context) {   // 没有找到路由
 		fmt.Println("没有找到路由")
