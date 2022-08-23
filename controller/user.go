@@ -12,6 +12,7 @@ import (
 func SignUpHandler(c *gin.Context) {
 	// 1. 获取参数和参数校验
 	p := &models.ParamSignUp{} // 是不是等价于 new(models.ParamSignUp)
+	// post 的 json 格式
 	if err := c.ShouldBindJSON(p); err != nil {
 		// 请求参数有误，直接返回响应
 		zap.L().Error("SignUp with invalid params ", zap.Error(err))
@@ -41,7 +42,7 @@ func SignUpHandler(c *gin.Context) {
 func LoginHandler(c *gin.Context)  {
 	// 1. 获取参数和参数校验
 	p := &models.ParamLogin{}
-	if err := c.ShouldBind(p); err != nil {
+	if err := c.ShouldBindQuery(p); err != nil {
 		// 请求参数有误，直接返回响应
 		zap.L().Error("LoginHandler with invalid params ", zap.Error(err))
 		// 判断 err 是不是 validator.ValidationErrors 类型
