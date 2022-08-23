@@ -34,8 +34,8 @@ func Init(cfg *setting.Log, mode string) (err error) {
 		// 进入开发模式，日志输出到终端
 		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
 		core = zapcore.NewTee(
-			zapcore.NewCore(encoder, writeSyncer, l),
-			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
+			zapcore.NewCore(encoder, writeSyncer, l),  // 写文件
+			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),  // 输出到终端
 		)
 	} else {
 		core = zapcore.NewCore(encoder, writeSyncer, l)

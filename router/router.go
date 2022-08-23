@@ -10,6 +10,10 @@ import (
 )
 
 func SetupRouter(mode string) *gin.Engine {
+	if mode == gin.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)    // 设置为发布模式
+	}
+
 	r := gin.New()
 
 	// 接收gin框架默认的日志
