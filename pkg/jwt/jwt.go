@@ -7,11 +7,9 @@ import (
 	"time"
 )
 
-
-const TokenExpireDuration = time.Hour * 2   // JWT的过期时间
+const TokenExpireDuration = time.Hour * 2 // JWT的过期时间
 
 var mySecret = []byte("夏天夏天悄悄过去")
-
 
 // MyClaims 自定义声明结构体并内嵌jwt.StandardClaims
 // jwt包自带的jwt.StandardClaims只包含了官方字段
@@ -28,12 +26,12 @@ type MyClaims struct {
 func GenToken(userID int64, username, password string) (string, error) {
 	// 创建一个我们自己的声明
 	c := MyClaims{
-		UserID: userID,
+		UserID:   userID,
 		Username: username,
 		Password: password,
-		StandardClaims : jwt.StandardClaims{
+		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(
-				time.Duration(viper.GetInt("auth.jwt_expire")) * time.Hour).Unix(), // 过期时间
+				time.Duration(viper.GetInt("auth.jwt_expire")) * time.Second).Unix(), // 过期时间
 			Issuer: "bluebell", // 签发人
 		},
 	}
@@ -46,7 +44,7 @@ func GenToken(userID int64, username, password string) (string, error) {
 func ParseToken(tokenString string) (*MyClaims, error) {
 	// 解析 token
 	var mc = MyClaims{}
-	token , err := jwt.ParseWithClaims(tokenString, &mc, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &mc, func(t *jwt.Token) (interface{}, error) {
 		return mySecret, nil
 	})
 	if err != nil {
@@ -57,8 +55,3 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 	}
 	return nil, errors.New("invalid token")
 }
-
-
-
-
-

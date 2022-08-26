@@ -2,8 +2,12 @@ package middlewares
 
 import (
 	"bluebell/controller"
+	"bluebell/dao/redis"
 	"bluebell/pkg/jwt"
+	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
+	"strconv"
 	"strings"
 )
 
@@ -23,18 +27,26 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 			parts := strings.SplitN(authHeader, " ", 2)
 			if !(len(parts) == 2 && parts[0] == "Bearer") {
 				controller.ResponseError(c, controller.CodeInvalidToken)
-				c.Abort()  // 退出
+				c.Abort() // 退出
 				return
 			}
 			// parts[1]是获取到的tokenString，我们使用之前定义好的解析JWT的函数来解析它
 			token, err := jwt.ParseToken(parts[1])
 			if err != nil {
 				controller.ResponseError(c, controller.CodeInvalidToken)
-				c.Abort()   // 退出
+				c.Abort() // 退出
 				return
 			}
 			// 将当前请求的userID信息保存到请求的上下文c上
 			c.Set(controller.CtxUserIDKey, token.UserID)
+
+			// token 和 userID 是否对应
+			isExistToken := redis.RDB.Get(context.TODO(), strconv.FormatInt(token.UserID, 10)).Val()
+			if isExistToken != "" {
+				controller.ResponseErrorWithError(c, errors.New("您的设备已经登录, 请退出后然后再此机器上登录"))
+				return
+			}
+
 			// 后续的处理请求的函数中 可以用过c.Get(CtxUserIDKey) 来获取当前请求的用户信息
 			c.Next()
 		}
@@ -47,24 +59,6 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 
 	// 2、放在请求体中
 
-
 	// 3、放在 URI 中
 
 }
-
-// Access token 缺点，只要服务器将 token 发送给客户端，时间在有效期内
-// 任何设备拿到这个 token 都可以进行资源的访问
-
-// 解决方法：引入 refresh token
-
-
-
-// refresh token
-
-
-
-
-
-
-
-
