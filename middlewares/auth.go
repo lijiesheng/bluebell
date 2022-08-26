@@ -9,7 +9,7 @@ import (
 
 // JWTAuthMiddleware 基于 JWT 的认证中间件
 
-
+// Access Token
 // 客户端携带Token有三种方式 1.放在请求头 2.放在请求体 3.放在URI
 func JWTAuthMiddleware() func(c *gin.Context) {
 	return func(c *gin.Context) {
@@ -23,14 +23,14 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 			parts := strings.SplitN(authHeader, " ", 2)
 			if !(len(parts) == 2 && parts[0] == "Bearer") {
 				controller.ResponseError(c, controller.CodeInvalidToken)
-				c.Abort()
+				c.Abort()  // 退出
 				return
 			}
 			// parts[1]是获取到的tokenString，我们使用之前定义好的解析JWT的函数来解析它
 			token, err := jwt.ParseToken(parts[1])
 			if err != nil {
 				controller.ResponseError(c, controller.CodeInvalidToken)
-				c.Abort()
+				c.Abort()   // 退出
 				return
 			}
 			// 将当前请求的userID信息保存到请求的上下文c上
@@ -52,8 +52,14 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 
 }
 
+// Access token 缺点，只要服务器将 token 发送给客户端，时间在有效期内
+// 任何设备拿到这个 token 都可以进行资源的访问
+
+// 解决方法：引入 refresh token
 
 
+
+// refresh token
 
 
 

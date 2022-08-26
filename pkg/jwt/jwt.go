@@ -46,7 +46,7 @@ func GenToken(userID int64, username, password string) (string, error) {
 func ParseToken(tokenString string) (*MyClaims, error) {
 	// 解析 token
 	var mc = MyClaims{}
-	token , err := jwt.ParseWithClaims(tokenString, mc, func(t *jwt.Token) (interface{}, error) {
+	token , err := jwt.ParseWithClaims(tokenString, &mc, func(t *jwt.Token) (interface{}, error) {
 		return mySecret, nil
 	})
 	if err != nil {

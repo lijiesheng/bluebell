@@ -1,12 +1,24 @@
 package controller
 
 import (
+	"bluebell/dao/redis"
 	"bluebell/logic"
 	"bluebell/models"
+	"bluebell/pkg/jwt"
+	"context"
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
+	"strconv"
 )
+
+// 返回参数
+type ResUser struct {
+	*models.User
+	AccessToken string
+}
 
 // 注册
 func SignUpHandler(c *gin.Context) {
@@ -17,9 +29,9 @@ func SignUpHandler(c *gin.Context) {
 		// 请求参数有误，直接返回响应
 		zap.L().Error("SignUp with invalid params ", zap.Error(err))
 		// 判断 err 是不是 validator.ValidationErrors 类型
-		_, ok := err.(validator.ValidationErrors)    // 验证参数是否传入错误
+		_, ok := err.(validator.ValidationErrors) // 验证参数是否传入错误
 		if !ok {
-			ResponseError(c, CodeInvalidParam)   // 请求参数错误
+			ResponseError(c, CodeInvalidParam) // 请求参数错误
 			return
 		}
 		ResponseError(c, CodeInvalidParam)
@@ -37,16 +49,15 @@ func SignUpHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-
 // 登录
-func LoginHandler(c *gin.Context)  {
+func LoginHandler(c *gin.Context) {
 	// 1. 获取参数和参数校验
 	p := &models.ParamLogin{}
 	if err := c.ShouldBindQuery(p); err != nil {
 		// 请求参数有误，直接返回响应
 		zap.L().Error("LoginHandler with invalid params ", zap.Error(err))
 		// 判断 err 是不是 validator.ValidationErrors 类型
-		_, ok := err.(validator.ValidationErrors)   // 验证参数是否传入错误
+		_, ok := err.(validator.ValidationErrors) // 验证参数是否传入错误
 		if !ok {
 			ResponseError(c, CodeInvalidParam)
 			return
@@ -64,6 +75,27 @@ func LoginHandler(c *gin.Context)  {
 		ResponseErrorWithError(c, err)
 		return
 	}
+	fmt.Printf("%+v\n", user)
+
+	// 2.1 生成 token
+	token, err := jwt.GenToken(user.UserID, p.Username, p.Password)
+	if err != nil {
+		zap.L().Error("生成 token 错误")
+		return
+	}
+	// 将 redis 和 userid 绑定，限制同一账号同一时间只能登录一个机器
+	isExistToken := redis.RDB.Get(context.TODO(), strconv.FormatInt(user.UserID, 10)).Val()
+	if isExistToken != "" {
+		ResponseErrorWithError(c, errors.New("您的设备已经登录, 请退出后然后再此机器上登录"))
+		return
+	}
+
+	redis.RDB.Set(context.TODO(), strconv.FormatInt(user.UserID, 10), token, 0)
+
 	// 3. 返回响应
-	ResponseSuccess(c, user)
+	resUser := ResUser{
+		User:        user,
+		AccessToken: token,
+	}
+	ResponseSuccess(c, &resUser)
 }

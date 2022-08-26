@@ -29,6 +29,12 @@ func SetupRouter(mode string) *gin.Engine {
 	// 上面的路由不受这个中间件控制
 	v1.Use(middlewares.JWTAuthMiddleware())
 
+	v1.GET("/ping", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{
+			"msg" : "验证 jwt 成功",
+		})
+	})
+
 
 
 	// 根据时间或分数获取帖子列表
