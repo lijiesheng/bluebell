@@ -23,7 +23,7 @@ func SetupRouter(mode string) *gin.Engine {
 
 	// 注册业务路由
 	v1.POST("/signup", controller.SignUpHandler)
-	v1.GET("/login", controller.LoginHandler)
+	v1.POST("/login", controller.LoginHandler)
 	// 上面的路由不受这个中间件控制
 	v1.Use(middlewares.JWTAuthMiddleware())
 
