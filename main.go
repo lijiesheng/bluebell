@@ -27,7 +27,7 @@ func main() {
 		fmt.Printf("init mysql failed, err:%v\n", err)
 		return
 	}
-	defer mysql.Close()  // todo
+	defer mysql.Close() // todo
 
 	// 加载 redis redis.Init   redis 要 close
 	if err := redis.InitRedis(setting.Conf.Redis); err != nil {
@@ -43,7 +43,6 @@ func main() {
 	}
 	id := snowflake.GenID()
 	fmt.Println(id)
-
 
 	// 注册路由
 	r := router.SetupRouter(setting.Conf.Mode)
